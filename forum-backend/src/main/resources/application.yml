@@ -1,0 +1,63 @@
+server:
+  port: ${SERVER_PORT:8080}
+  error:
+    include-message: never
+    include-stacktrace: never
+
+spring:
+  application:
+    name: forum-backend
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/forum?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&useSSL=false}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:0000}
+    hikari:
+      maximum-pool-size: ${DB_POOL_SIZE:10}
+      connection-timeout: 10000
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+  jackson:
+    time-zone: Asia/Shanghai
+  web:
+    resources:
+      add-mappings: true
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+  global-config:
+    banner: false
+    db-config:
+      id-type: auto
+
+# 以下敏感项一律通过环境变量注入，仓库内只保留本地开发默认值
+jwt:
+  secret: ${JWT_SECRET:acg-forum-dev-only-secret-key-please-change-me-in-production-2026}
+  expiration: ${JWT_EXPIRATION:86400000}
+
+app:
+  # 图片物理目录；默认项目根目录下的 picture（可用 APP_UPLOAD_DIR 覆盖）
+  upload-dir: ${APP_UPLOAD_DIR:./picture}
+  cors:
+    # 支持通配（Vite 换端口 / 局域网 IP 调试）；生产请改成明确域名
+    allowed-origins: ${APP_CORS_ORIGINS:http://localhost:*,http://127.0.0.1:*}
+  security:
+    # 登录失败限流：window 秒内失败 max-attempts 次即锁定 lock-seconds 秒
+    login-max-attempts: ${LOGIN_MAX_ATTEMPTS:5}
+    login-window-seconds: ${LOGIN_WINDOW_SECONDS:900}
+    login-lock-seconds: ${LOGIN_LOCK_SECONDS:900}
+  admin:
+    username: ${ADMIN_USERNAME:admin}
+    password: ${ADMIN_PASSWORD:admin123}
+    # 首次启动自动创建管理员；生产环境建议改为 false 并手工建号
+    auto-init: ${ADMIN_AUTO_INIT:true}
+
+logging:
+  level:
+    root: INFO
+    com.forum: ${LOG_LEVEL:INFO}
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{36} - %msg%n"

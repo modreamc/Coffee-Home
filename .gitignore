@@ -1,0 +1,47 @@
+# ── Java / Maven ──
+target/
+*.class
+*.jar
+!**/mvn/wrapper/maven-wrapper.jar
+*.log
+
+# ── Node / Vite ──
+node_modules/
+dist/
+dist-ssr/
+*.local
+.vite/
+
+# ── IDE ──
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.settings/
+.classpath
+.project
+
+# ── 运行时产物（图片、上传、日志、数据库） ──
+picture/
+uploads/
+logs/
+*.db
+*.sqlite
+
+# ── 本地环境变量 ──
+.env
+.env.*
+!.env.example
+
+# ── 本地视觉验收截图 ──
+.shots/
+
+# ── 系统 ──
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# �ĵ����ɽű����м����
+docs_build/
+
