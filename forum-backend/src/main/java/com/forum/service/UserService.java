@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import java.security.SecureRandom;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -74,17 +75,34 @@ public class UserService {
         if (!adminAutoInit) return;
         if (userMapper.selectCount(Wrappers.<User>lambdaQuery()
                 .eq(User::getUsername, adminUsername)) == 0) {
+            String password = adminPassword;
+            boolean generated = false;
+            if (password == null || password.isBlank()) {
+                // 公开仓库不内置默认密码：首次启动生成随机密码并打印一次
+                password = generatePassword(12);
+                generated = true;
+            }
             User admin = new User();
             admin.setUsername(adminUsername);
-            admin.setPassword(passwordEncoder.encode(adminPassword));
+            admin.setPassword(passwordEncoder.encode(password));
             admin.setNickname("管理员");
             admin.setRole("ADMIN");
             userMapper.insert(admin);
             log.info("initial admin account '{}' created", adminUsername);
+            if (generated) {
+                log.warn("ADMIN_PASSWORD 未配置，已生成随机管理员密码：{}（请登录后立即修改，或设置 ADMIN_PASSWORD 环境变量后重建）", password);
+            }
         }
-        if ("admin123".equals(adminPassword)) {
-            log.warn("管理员使用默认密码 admin123，生产环境请通过 ADMIN_PASSWORD 环境变量覆盖");
+    }
+
+    private String generatePassword(int length) {
+        String chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
+        SecureRandom random = new SecureRandom();
+        StringBuilder sb = new StringBuilder(length);
+        for (int i = 0; i < length; i++) {
+            sb.append(chars.charAt(random.nextInt(chars.length())));
         }
+        return sb.toString();
     }
 
     public Map<String, Object> login(LoginRequest request, String clientKey) {

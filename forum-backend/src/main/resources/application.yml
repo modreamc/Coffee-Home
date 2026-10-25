@@ -33,9 +33,10 @@ mybatis-plus:
     db-config:
       id-type: auto
 
-# 以下敏感项一律通过环境变量注入，仓库内只保留本地开发默认值
+# 敏感项一律通过环境变量注入；仓库内不保留任何可用的真实密钥
 jwt:
-  secret: ${JWT_SECRET:acg-forum-dev-only-secret-key-please-change-me-in-production-2026}
+  # 未配置时启动会生成随机密钥（重启后旧 Token 失效），生产必须显式设置
+  secret: ${JWT_SECRET:}
   expiration: ${JWT_EXPIRATION:86400000}
 
 app:
@@ -51,7 +52,8 @@ app:
     login-lock-seconds: ${LOGIN_LOCK_SECONDS:900}
   admin:
     username: ${ADMIN_USERNAME:admin}
-    password: ${ADMIN_PASSWORD:admin123}
+    # 未配置时首次启动会生成随机密码并打印到日志；生产必须显式设置
+    password: ${ADMIN_PASSWORD:}
     # 首次启动自动创建管理员；生产环境建议改为 false 并手工建号
     auto-init: ${ADMIN_AUTO_INIT:true}
 

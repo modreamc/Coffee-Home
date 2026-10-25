@@ -39,7 +39,11 @@ npm run dev
 # 默认 http://localhost:3000，/api、/picture 由 Vite 代理到 8080
 ```
 
-首次启动会自动创建管理员账号：`admin / admin123`（可用环境变量覆盖，见下）。
+首次启动会自动创建管理员账号：
+
+- 设置了 `ADMIN_PASSWORD` 时使用该密码；
+- 未设置时生成随机密码，并**只打印一次**在启动日志里（搜索 `随机管理员密码`）；
+- 仓库不内置任何默认密码或 JWT 密钥，公开部署时请务必通过环境变量注入。
 
 ### 1.4 灌入示例长文与配图（可选）
 
@@ -57,22 +61,24 @@ java -cp "<mysql-connector-j.jar>" tools/SeedContent.java
 
 ## 2. 配置
 
-所有敏感配置都通过环境变量注入，仓库里只保留本地开发默认值：
+所有敏感配置都通过环境变量注入，仓库里不保存可用的真实密钥：
 
 | 变量 | 默认值 | 说明 |
 |---|---|---|
 | `SERVER_PORT` | `8080` | 后端端口 |
 | `DB_URL` | `jdbc:mysql://localhost:3306/forum?...` | 数据库连接串 |
-| `DB_USERNAME` / `DB_PASSWORD` | `root` / `0000` | 数据库账号（**生产必须覆盖**） |
+| `DB_USERNAME` / `DB_PASSWORD` | `root` / `0000` | 本地开发默认值，**生产必须覆盖** |
 | `DB_POOL_SIZE` | `10` | Hikari 连接池大小 |
-| `JWT_SECRET` | 开发用占位串 | 至少 32 字节；**生产必须覆盖** |
+| `JWT_SECRET` | 空 | 未设置时启动生成临时随机密钥（重启后旧 Token 失效）；生产必须设置至少 32 字节随机串 |
 | `JWT_EXPIRATION` | `86400000` | token 有效期（毫秒，默认 24h） |
 | `APP_UPLOAD_DIR` | `./picture` | 图片物理目录 |
 | `APP_CORS_ORIGINS` | `http://localhost:*,http://127.0.0.1:*` | 允许的前端来源，逗号分隔；支持 `*` 通配（Vite 换端口不影响），生产建议写死域名 |
-| `ADMIN_USERNAME` / `ADMIN_PASSWORD` | `admin` / `admin123` | 首次启动创建的管理员（**生产必须覆盖**） |
+| `ADMIN_USERNAME` / `ADMIN_PASSWORD` | `admin` / 空 | 未设置密码时生成随机密码并打印到日志；**生产必须显式设置** |
 | `ADMIN_AUTO_INIT` | `true` | 是否自动创建管理员 |
 | `LOGIN_MAX_ATTEMPTS` / `LOGIN_WINDOW_SECONDS` / `LOGIN_LOCK_SECONDS` | 5 / 900 / 900 | 登录失败限流 |
 | `LOG_LEVEL` | `INFO` | `com.forum` 日志级别 |
+
+配置模板见 [`.env.example`](.env.example)（Spring 不会自动读取 `.env`，请在 IDE 运行配置或 shell 里设置）。
 
 PowerShell 示例：
 
